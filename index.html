@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jerry Wu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -22,6 +24,7 @@
         #header-container {
             text-align: center;
             margin-bottom: 2rem;
+            
         }
 
         #name-display {
@@ -60,7 +63,7 @@
         }
     </style>
 </head>
-<body>
+<body id="cloud">
     <div id="header-container">
         <pre id="name-display"></pre>
         <div id="subtitle">Mechatronics Hobbyist | Open Source Developer</div>
@@ -327,6 +330,21 @@
 
             window.animationManager = animationManager;
         });
+    </script>
+    <script>
+        VANTA.NET({
+            el: "#cloud",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x172337,  // Removed the # symbol
+            backgroundColor: 0x121212,
+            showDots: false
+        })
     </script>
 </body>
 </html>
