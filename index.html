@@ -148,7 +148,7 @@
                     clearInterval(this.animationInterval);
                 }
 
-                this.animateLeftToRight().then(() => {
+                this.zigzagLeftRight().then(() => {
                     this.randomAnimation();
                 });
             }
@@ -179,7 +179,8 @@
                     'shiftRightAll',
                     'shiftVerticalUp',
                     'shiftVerticalDown',
-                    'zigzagVertical'
+                    'zigzagVertical',
+                    'zigzagLeftRight'
                 ];
 
                 const randomAnim = animations[Math.floor(Math.random() * animations.length)];
@@ -200,6 +201,9 @@
                         break;
                     case 'zigzagVertical':
                         this.zigzagVertical().then(() => this.randomAnimation());
+                        break;
+                    case 'zigzagLeftRight':
+                        this.zigzagLeftRight().then(() => this.randomAnimation());
                         break;
                     default:
                         this.animateLeftToRight().then(() => this.randomAnimation());
@@ -238,6 +242,34 @@
                         this.updateDisplay();
 
                         position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 50);
+                });
+            }
+
+            zigzagLeftRight() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.maxLength;
+                    const directions = [];
+                    
+                    for (let i = 0; i < this.lines.length; i++) {
+                        directions[i] = i % 2 === 0 ? Shift.LEFT : Shift.RIGHT;
+                    }
+
+                    const interval = setInterval(() => {
+                        this.lines.forEach((line, index) => {
+                            line.text = Shift.shift(directions[index], line.text);
+                            
+
+                        });
+                        
+                        this.updateDisplay();
+                        position++;
+                        
                         if (position >= totalSteps) {
                             clearInterval(interval);
                             setTimeout(resolve, 1000);
@@ -341,7 +373,7 @@
             minWidth: 200.00,
             scale: 1.00,
             scaleMobile: 1.00,
-            color: 0x172337,  // Removed the # symbol
+            color: 0x172337,
             backgroundColor: 0x121212,
             showDots: false
         })
