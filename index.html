@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jerry Wu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #header-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        #name-display {
+            white-space: pre;
+            font-size: 1.5rem;
+            line-height: 1.2;
+            color: #4fc3f7;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.7);
+            margin: 0;
+            padding: 0;
+        }
+
+        #subtitle {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            letter-spacing: 0.2rem;
+        }
+
+        .btn-container {
+            margin-top: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(79, 195, 247, 0.2);
+            color: #4fc3f7;
+            border: 1px solid #4fc3f7;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(79, 195, 247, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container">
+        <pre id="name-display"></pre>
+        <div id="subtitle">Mechatronics Hobbyist | Open Source Developer</div>
+    </div>
+
+    <div class="btn-container">
+        <button class="nav-btn" onclick="window.location.href='#about'">About</button>
+        <button class="nav-btn" onclick="window.location.href='#projects'">Projects</button>
+        <button class="nav-btn" onclick="window.location.href='#contact'">Contact</button>
+    </div>
+
+    <script>
+        const nameArt = [
+    "      _                       __          __",
+    "     | |                      \\ \\        / /",
+    "     | | ___ _ __ _ __ _   _   \\ \\  /\\  / /   _",
+    " _   | |/ _ \\ '__| '__| | | |   \\ \\/  \\/ / | | |",
+    "| |__| |  __/ |  | |  | |_| |    \\  /\\  /| |_| |",
+    " \\____/ \\___|_|  |_|   \\__, |     \\/  \\/  \\__,_|",
+    "                        __/ |",
+    "                       |___/"
+];
+
+        const Shift = {
+            LEFT: "left",
+            RIGHT: "right",
+            UP: "up",
+            DOWN: "down",
+
+            shift: function(direction, string) {
+                if (!string) return string;
+
+                switch(direction) {
+                    case this.LEFT:
+                        return string.substring(1) + string[0];
+                    case this.RIGHT:
+                        return string[string.length - 1] + string.substring(0, string.length - 1);
+                    case this.UP:
+                    case this.DOWN:
+                    default:
+                        return string;
+                }
+            }
+        };
+
+        class AnimationManager {
+            constructor() {
+                this.lines = [];
+                this.maxLength = 0;
+                this.animationInterval = null;
+                this.currentAnimation = null;
+                this.initializeLines();
+                this.startAnimation();
+            }
+
+            initializeLines() {
+
+                this.maxLength = nameArt.reduce((max, line) => Math.max(max, line.length), 0);
+
+                this.lines = nameArt.map(line => {
+                    return {
+                        text: line.padEnd(this.maxLength, ' '),
+                        original: line.padEnd(this.maxLength, ' ')
+                    };
+                });
+            }
+
+            updateDisplay() {
+                const display = document.getElementById('name-display');
+                display.textContent = this.lines.map(line => line.text).join('\n');
+            }
+
+            resetToOriginal() {
+                this.lines.forEach((line, index) => {
+                    line.text = line.original;
+                });
+                this.updateDisplay();
+            }
+
+            startAnimation() {
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                }
+
+                this.animateLeftToRight().then(() => {
+                    this.randomAnimation();
+                });
+            }
+
+            animateLeftToRight() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.maxLength;
+
+                    const interval = setInterval(() => {
+                        this.lines.forEach(line => {
+                            line.text = Shift.shift(Shift.LEFT, line.text);
+                        });
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 50);
+                });
+            }
+
+            randomAnimation() {
+                const animations = [
+                    'shiftLeftAll',
+                    'shiftRightAll',
+                    'shiftVerticalUp',
+                    'shiftVerticalDown',
+                    'zigzagVertical'
+                ];
+
+                const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+                this.currentAnimation = randomAnim;
+
+                switch(randomAnim) {
+                    case 'shiftLeftAll':
+                        this.shiftLeftAll().then(() => this.randomAnimation());
+                        break;
+                    case 'shiftRightAll':
+                        this.shiftRightAll().then(() => this.randomAnimation());
+                        break;
+                    case 'shiftVerticalUp':
+                        this.shiftVerticalUp().then(() => this.randomAnimation());
+                        break;
+                    case 'shiftVerticalDown':
+                        this.shiftVerticalDown().then(() => this.randomAnimation());
+                        break;
+                    case 'zigzagVertical':
+                        this.zigzagVertical().then(() => this.randomAnimation());
+                        break;
+                    default:
+                        this.animateLeftToRight().then(() => this.randomAnimation());
+                }
+            }
+
+            shiftLeftAll() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.maxLength;
+
+                    const interval = setInterval(() => {
+                        this.lines.forEach(line => {
+                            line.text = Shift.shift(Shift.LEFT, line.text);
+                        });
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 50);
+                });
+            }
+
+            shiftRightAll() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.maxLength;
+
+                    const interval = setInterval(() => {
+                        this.lines.forEach(line => {
+                            line.text = Shift.shift(Shift.RIGHT, line.text);
+                        });
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 50);
+                });
+            }
+
+            shiftVerticalUp() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.lines.length;
+
+                    const interval = setInterval(() => {
+
+                        this.lines.unshift(this.lines.pop());
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 100);
+                });
+            }
+
+            shiftVerticalDown() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.lines.length;
+
+                    const interval = setInterval(() => {
+
+                        this.lines.push(this.lines.shift());
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 100);
+                });
+            }
+
+            zigzagVertical() {
+                return new Promise((resolve) => {
+                    let position = 0;
+                    const totalSteps = this.maxLength;
+
+                    const interval = setInterval(() => {
+                        const lineArrays = this.lines.map(line => line.text.split(''));
+
+                        for (let col = 0; col < this.maxLength; col++) {
+                            if (col % 2 === 0) {
+
+                                const temp = lineArrays[this.lines.length - 1][col];
+                                for (let row = this.lines.length - 1; row > 0; row--) {
+                                    lineArrays[row][col] = lineArrays[row - 1][col];
+                                }
+                                lineArrays[0][col] = temp;
+                            } else {
+
+                                const temp = lineArrays[0][col];
+                                for (let row = 0; row < this.lines.length - 1; row++) {
+                                    lineArrays[row][col] = lineArrays[row + 1][col];
+                                }
+                                lineArrays[this.lines.length - 1][col] = temp;
+                            }
+                        }
+
+                        this.lines.forEach((line, index) => {
+                            line.text = lineArrays[index].join('');
+                        });
+                        this.updateDisplay();
+
+                        position++;
+                        if (position >= totalSteps) {
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000);
+                        }
+                    }, 50);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const animationManager = new AnimationManager();
+
+            window.animationManager = animationManager;
+        });
+    </script>
+</body>
+</html>
