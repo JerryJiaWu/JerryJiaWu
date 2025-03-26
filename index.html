@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jerry Wu</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
@@ -17,35 +17,47 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
+            -webkit-text-size-adjust: 100%;
         }
 
         #header-container {
             text-align: center;
-            margin-bottom: 2rem;
-            
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+            width: 90%;
+            max-width: 800px;
         }
 
         #name-display {
             white-space: pre;
-            font-size: 1.5rem;
+            font-size: clamp(0.8rem, 3vw, 1.5rem);
             line-height: 1.2;
             color: #4fc3f7;
             text-shadow: 0 0 10px rgba(79, 195, 247, 0.7);
             margin: 0;
             padding: 0;
+            overflow-x: auto;
+            max-width: 100%;
         }
 
         #subtitle {
-            margin-top: 1.5rem;
-            font-size: 1.2rem;
+            margin-top: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
             opacity: 0.8;
-            letter-spacing: 0.2rem;
+            letter-spacing: 0.1rem;
+            word-wrap: break-word;
         }
 
         .btn-container {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 90%;
+            max-width: 400px;
         }
 
         .nav-btn {
@@ -53,13 +65,37 @@
             color: #4fc3f7;
             border: 1px solid #4fc3f7;
             padding: 0.5rem 1rem;
-            margin: 0 0.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            flex: 1 0 auto;
+            min-width: 100px;
+            max-width: 120px;
         }
 
         .nav-btn:hover {
             background: rgba(79, 195, 247, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            #name-display {
+                font-size: 0.7rem;
+            }
+
+            #subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 0.05rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 80%;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -120,7 +156,6 @@
             }
 
             initializeLines() {
-
                 this.maxLength = nameArt.reduce((max, line) => Math.max(max, line.length), 0);
 
                 this.lines = nameArt.map(line => {
@@ -255,7 +290,7 @@
                     let position = 0;
                     const totalSteps = this.maxLength;
                     const directions = [];
-                    
+
                     for (let i = 0; i < this.lines.length; i++) {
                         directions[i] = i % 2 === 0 ? Shift.LEFT : Shift.RIGHT;
                     }
@@ -263,13 +298,11 @@
                     const interval = setInterval(() => {
                         this.lines.forEach((line, index) => {
                             line.text = Shift.shift(directions[index], line.text);
-                            
-
                         });
-                        
+
                         this.updateDisplay();
                         position++;
-                        
+
                         if (position >= totalSteps) {
                             clearInterval(interval);
                             setTimeout(resolve, 1000);
@@ -284,7 +317,6 @@
                     const totalSteps = this.lines.length;
 
                     const interval = setInterval(() => {
-
                         this.lines.unshift(this.lines.pop());
                         this.updateDisplay();
 
@@ -303,7 +335,6 @@
                     const totalSteps = this.lines.length;
 
                     const interval = setInterval(() => {
-
                         this.lines.push(this.lines.shift());
                         this.updateDisplay();
 
@@ -326,14 +357,12 @@
 
                         for (let col = 0; col < this.maxLength; col++) {
                             if (col % 2 === 0) {
-
                                 const temp = lineArrays[this.lines.length - 1][col];
                                 for (let row = this.lines.length - 1; row > 0; row--) {
                                     lineArrays[row][col] = lineArrays[row - 1][col];
                                 }
                                 lineArrays[0][col] = temp;
                             } else {
-
                                 const temp = lineArrays[0][col];
                                 for (let row = 0; row < this.lines.length - 1; row++) {
                                     lineArrays[row][col] = lineArrays[row + 1][col];
@@ -359,8 +388,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const animationManager = new AnimationManager();
-
             window.animationManager = animationManager;
+
+            function adjustHeight() {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+
+            adjustHeight();
+            window.addEventListener('resize', adjustHeight);
         });
     </script>
     <script>
